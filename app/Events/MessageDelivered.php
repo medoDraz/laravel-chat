@@ -39,7 +39,7 @@ class MessageDelivered implements ShouldBroadcast
     public function broadcastOn()
     {
 
-        return new PrivateChannel('chatgroup');
+        return new PrivateChannel('chatgroup.'.$this->room_id);
     }
 
 

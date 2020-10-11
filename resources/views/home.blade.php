@@ -73,9 +73,9 @@
                         <div class="msg-container msg-vbox ng-scope">
                             <div class="msg-position">
                                 <div class="msg-body ng-isolate-scope " id="message-content"
-                                     style="overflow-y: scroll; height: 91%;">
+                                     style="overflow-y: scroll; height: 92.5%;">
                                     <!-- ngIf: !loadedMsg -->
-                                    <div class="ng-scope1" >
+                                    <div class="ng-scope1" id="ng-scope1" >
                                       
                                         
                                     </div><!-- end ngIf: !loadedMsg -->
@@ -87,7 +87,7 @@
                                 <div class="msg-sender" >
                                     <div class="typing-area">
                                         <div class="text-holder">
-											<input style="width: 86%;"
+											<input style="width: 94%;"
 												class="form-control ng-pristine ng-untouched ng-valid ng-empty"
 												placeholder="type your message here..."
 												data-url="{{ route('messages.store') }}"
@@ -96,7 +96,7 @@
 											<input type="hidden" id="recever_id" name="recever_id" value=""/>
 											<input type="hidden" id="room_id" name="room_id" value=""/>
 											<input type="hidden" id="type" name="type" value=""/>
-											<button class="btn btn-sm btn-primary" data-url="{{ route('messages.store') }}" id="send">Send
+											<button class="btn btn-sm btn-primary fa fa-paper-plane" style="margin-left: 3px; width: 43px;" data-url="{{ route('messages.store') }}" id="send">
 											</button>
                                         </div>
                                     </div>
@@ -183,21 +183,51 @@
 			$('#room_id').val(room_id);
 			$('#type').val(type);
 			$('#recever_id').val(user_id);
-			console.log(user_id);
+			//console.log(user_id);
             let data = {
                 '_token': $('meta[name=csrf-token]').attr('content'),
 				'recever_id' : user_id,
 				'type' : type,
 				'room_id' :room_id
             };
-			
+			if(room_id == ''){
+				document.getElementsByClassName("ng-scope1")[0].setAttribute("id", `chat.${user_id}`);
+				document.getElementById('chat.'+user_id+'').className = 'ng-scope1 chat.'+user_id+'';
+				//console.log('empty');
+				window.Echo.private(`chatgroup1.${user_id}.${userId}`)
+				.listen('MessageDelivered1', e => {
+					console.log(e);
+					$('#chat.'+user_id+'').append(
+						'<div class="message ng-scope left"><div class="message-container"><div class="message-setting"><span class="date ng-binding">'+e.username+'</span></div><div class="message-text ng-binding">'+e.message+'</div><div class="message-setting"><span class="date ng-binding">1 s</span></div><img class="_uavatar ng-isolate-scope" width="32" src="{{ asset('img/user2.jpg') }}"></div></div><!-- end ngRepeat: m in messages track by m.id -->'
+					);
+					let chatWindow = document.getElementById('message-content');
+					var xH = chatWindow.scrollHeight;
+					chatWindow.scrollTo(0, xH);
+				});
+			}else{
+				//console.log('room_id '+room_id);
+				document.getElementsByClassName("ng-scope1")[0].setAttribute("id", `chatroom.${room_id}`);
+				document.getElementById('chatroom.'+room_id+'').className = 'ng-scope1 chatroom.'+room_id+'';
+				roomId=room_id;
+				window.Echo.private(`chatgroup.${roomId}`)
+				.listen('MessageDelivered', e => {
+					console.log(e);
+					console.log(document.getElementById('chatroom.'+room_id+''));
+					$('#chatroom.'+room_id+'').append(
+						'<div class="message ng-scope left"><div class="message-container"><div class="message-setting"><span class="date ng-binding">'+e.username+'</span></div><div class="message-text ng-binding">'+e.message+'</div><div class="message-setting"><span class="date ng-binding">1 s</span></div><img class="_uavatar ng-isolate-scope" width="32" src="{{ asset('img/user2.jpg') }}"></div></div><!-- end ngRepeat: m in messages track by m.id -->'
+					);
+					let chatWindow = document.getElementById('message-content');
+					var xH = chatWindow.scrollHeight;
+					chatWindow.scrollTo(0, xH);
+				});
+			}
 
             $.ajax({
                 url: url,
                 method: 'post',
                 data: data,
                 success: function (data) {
-                    console.log(data.messages.length);
+                    //console.log(data.messages.length);
 					
 					data.messages.forEach(function(entry) {
 						var t1=new Date(entry.created_at);
@@ -221,9 +251,9 @@
 						var A = years == 0 && months == 0 && days == 0 && hours == 0 && minutes == 0 && seconds == 0 ? "Sending" : " ago";
 
 						if(entry.user_id == userId){
-							$('.ng-scope1').append('<div class="message ng-scope right"><div class="message-container"><div class="message-setting"><span class="date ng-binding">you</span></div><div class="message-text ng-binding">'+entry.body+'</div><div class="message-setting"><span class="date ng-binding">'+Y + M + D + H + I + S + A+'</span></div><img class="_uavatar ng-isolate-scope" width="32" src="{{ asset('img/') }}'+'/'+entry.user.image+'"></div></div><!-- end ngRepeat: m in messages track by m.id -->');
+							$('.ng-scope1').append('<div class="message ng-scope right"><div class="message-container"><div class="message-setting"><span class="date ng-binding">you</span></div><div class="message-text ng-binding">'+entry.body+'</div><div class="message-setting"><span class="date ng-binding">'+Y + M + D + H + I + S + A+'</span></div><img class="_uavatar ng-isolate-scope" width="32" src="{{ asset('img/') }}'+'/'+entry.user.image+'"></div></div>');
 						} else {
-							$('.ng-scope1').append('<div class="message ng-scope left"><div class="message-container"><div class="message-setting"><span class="date ng-binding">'+entry.user.name+'</span></div><div class="message-text ng-binding">'+entry.body+'</div><div class="message-setting"><span class="date ng-binding">'+Y + M + D + H + I + S + A+'</span></div><img class="_uavatar ng-isolate-scope" width="32" src="{{ asset('img/') }}'+'/'+entry.user.image+'"></div></div><!-- end ngRepeat: m in messages track by m.id -->');
+							$('.ng-scope1').append('<div class="message ng-scope left"><div class="message-container"><div class="message-setting"><span class="date ng-binding">'+entry.user.name+'</span></div><div class="message-text ng-binding">'+entry.body+'</div><div class="message-setting"><span class="date ng-binding">'+Y + M + D + H + I + S + A+'</span></div><img class="_uavatar ng-isolate-scope" width="32" src="{{ asset('img/') }}'+'/'+entry.user.image+'"></div></div>');
 						}
 					});
 				
@@ -276,17 +306,18 @@
             }
         });
 		
-			window.Echo.private(`chatgroup`)
-            .listen('MessageDelivered', e => {
-                console.log(e);
-                $('.ng-scope1').append(
-							'<div class="message ng-scope left"><div class="message-container"><div class="message-setting"><span class="date ng-binding">'+e.username+'</span></div><div class="message-text ng-binding">'+e.message+'</div><div class="message-setting"><span class="date ng-binding">1 s</span></div><img class="_uavatar ng-isolate-scope" width="32" src="{{ asset('img/user2.jpg') }}"></div></div><!-- end ngRepeat: m in messages track by m.id -->'
-                        );
-                let chatWindow = document.getElementById('message-content');
-                var xH = chatWindow.scrollHeight;
-                chatWindow.scrollTo(0, xH);
-            });
-        
+		
+/* 		window.Echo.private(`chatgroup`)
+		.listen('MessageDelivered', e => {
+			console.log(e);
+			$('.ng-scope1').append(
+						'<div class="message ng-scope left"><div class="message-container"><div class="message-setting"><span class="date ng-binding">'+e.username+'</span></div><div class="message-text ng-binding">'+e.message+'</div><div class="message-setting"><span class="date ng-binding">1 s</span></div><img class="_uavatar ng-isolate-scope" width="32" src="{{ asset('img/user2.jpg') }}"></div></div><!-- end ngRepeat: m in messages track by m.id -->'
+					);
+			let chatWindow = document.getElementById('message-content');
+			var xH = chatWindow.scrollHeight;
+			chatWindow.scrollTo(0, xH);
+		});
+ */        
           
     </script>
 @endsection

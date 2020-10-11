@@ -32,14 +32,30 @@ Broadcast::channel('online.{roomId}', function ($user, $roomId) {
     }
 });
 
-Broadcast::channel('chatgroup', function ($user) {
+Broadcast::channel('chatgroup.{roomId}', function ($user, $roomId) {
 
-    //$chatRoom = App\ChatRoom::find($roomId);
-    //if(in_array($user->id, explode(',', $chatRoom->user_id))) {
+    $chatRoom = App\ChatRoom::find($roomId);
+    if(in_array($user->id, explode(',', $chatRoom->user_id))) {
         return $user;
-    //} else {
-    //    return false;
-    //}
+    } else {
+        return false;
+    }
+
+});
+
+Broadcast::channel('chatgroup1.{user_id}.{userId}', function ($user, $user_id, $userId) {
+	
+	$chatRoom=App\ChatRoom::where('room_type','private')
+			->where('user_id', 'like', '%' . $userId . '%')
+			->where('user_id', 'like', '%' . $user_id . '%')
+			->first();
+
+    //$chatRoom = App\ChatRoom::find($room1->id);
+    if(in_array($user->id, explode(',', $chatRoom->user_id))) {
+        return $user;
+    } else {
+        return false;
+    }
 
 });
 

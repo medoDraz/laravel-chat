@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ChatRoom;
 use App\Events\MessageDelivered;
+use App\Events\MessageDelivered1;
 use App\Message;
 use App\User;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ class MessageController extends Controller
 
     public function store(Request $request)
     {
+		//dd($request);
 		$user=\Auth::user();
 		if($request->room_id == null){
 			$room1=ChatRoom::where('room_type',$request->type)
@@ -39,7 +41,7 @@ class MessageController extends Controller
 				'body' => $request->body,
 				'chat_room_id' => $room1->id,
 			]);
-			broadcast(new MessageDelivered($message))->toOthers();
+			broadcast(new MessageDelivered1($message,$request->recever_id,$user->id))->toOthers();
 			return response()->json([
 				'success'=>'get your data',
 				'message' => $message
